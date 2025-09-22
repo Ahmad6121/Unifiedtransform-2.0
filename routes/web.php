@@ -182,12 +182,30 @@ Route::middleware(['auth'])->group(function () {
     Route::get('password/edit', [UpdatePasswordController::class, 'edit'])->name('password.edit');
     Route::post('password/edit', [UpdatePasswordController::class, 'update'])->name('password.update');
 
-    Route::resource('finance/invoices', InvoiceController::class);
+    Route::resource('finance/invoices', InvoiceController::class)->names([
+        'index'   => 'finance.invoices.index',
+        'create'  => 'finance.invoices.create',
+        'store'   => 'finance.invoices.store',
+        'show'    => 'finance.invoices.show',
+        'edit'    => 'finance.invoices.edit',
+        'update'  => 'finance.invoices.update',
+        'destroy' => 'finance.invoices.destroy',
+    ]);
+
     Route::post('finance/invoices/{invoice}/payments', [PaymentController::class,'store'])->name('finance.invoices.payments.store');
 
     Route::resource('staff', StaffController::class);
 
-    Route::resource('library/books', BookController::class);
+    Route::resource('library/books', \App\Http\Controllers\Library\BookController::class)->names([
+        'index'   => 'library.books.index',
+        'create'  => 'library.books.create',
+        'store'   => 'library.books.store',
+        'show'    => 'library.books.show',
+        'edit'    => 'library.books.edit',
+        'update'  => 'library.books.update',
+        'destroy' => 'library.books.destroy',
+    ]);
+
     Route::get('library/issues', [BookIssueController::class,'index'])->name('library.issues.index');
     Route::get('library/issues/create', [BookIssueController::class,'create'])->name('library.issues.create');
     Route::post('library/issues', [BookIssueController::class,'store'])->name('library.issues.store');
@@ -196,9 +214,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('library/issues/{issue}/edit', [BookIssueController::class,'edit'])->name('library.issues.edit');
     Route::put('library/issues/{issue}', [BookIssueController::class,'update'])->name('library.issues.update');
 
-    Route::get('/finance/invoices', function () {
-        return view('finance.invoices.index');
-    })->name('finance.invoices.index');
+
 
 
 });

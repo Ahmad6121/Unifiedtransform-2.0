@@ -7,13 +7,18 @@ use App\Models\AcademicSetting;
 
 class AcademicSettingSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
+    public function run(): void
     {
-        AcademicSetting::factory()->count(1)->create();
+        AcademicSetting::firstOrCreate(
+            ['id' => 1],
+            [
+                'attendance_type'        => 'section', // أو 'daily' إذا تحب تغيّر الإعداد الافتراضي
+                'marks_submission_status'=> 'off',
+                'created_at'             => now(),
+                'updated_at'             => now(),
+            ]
+        );
+
+        $this->command->info('✅ AcademicSettingSeeder: تم إنشاء الإعدادات الأكاديمية بنجاح.');
     }
 }

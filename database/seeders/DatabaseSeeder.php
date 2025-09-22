@@ -9,16 +9,26 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            // لو عندك صلاحيات/أدمن جاهزة أبقها هنا
             PermissionSeeder::class,
+            RoleSeeder::class,
             AdminUserSeeder::class,
-
-
             SchoolSessionSeeder::class,
             SemesterSeeder::class,
             SchoolClassSeeder::class,
             SectionSeeder::class,
             CourseSeeder::class,
+
+            // Seeders الجديدة
+            BookSeeder::class,
+            BookIssueSeeder::class,
+            InvoiceSeeder::class,
+            PaymentSeeder::class,
+            StaffSeeder::class,
+            UserSeeder::class,
+            StudentParentInfoSeeder::class,
+            StudentAcademicInfoSeeder::class,
+            AcademicSettingSeeder::class,
         ]);
+
     }
 }

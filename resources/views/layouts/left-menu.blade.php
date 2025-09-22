@@ -139,31 +139,27 @@
                     </li>
                     @endif
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('finance/invoices*') ? 'active' : '' }}"
-                           href="{{ route('finance.invoices.index') }}">
+                        <a class="nav-link {{ request()->is('finance/invoices*')? 'active' : '' }}" href="{{ route('finance.invoices.index') }}">
                             <i class="bi bi-currency-exchange"></i>
-                            <span class="ms-1 d-inline d-sm-none d-md-none d-xl-inline">Payment</span>
+                            <span class="ms-1 d-inline d-sm-none d-md-none d-xl-inline">Payments</span>
                         </a>
                     </li>
-
                     @if (Auth::user()->role == "admin")
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->is('staff*') ? 'active' : '' }}"
-                               href="{{ route('staff.index') }}">
-                                <i class="bi bi-person-lines-fill"></i>
-                                <span class="ms-1 d-inline d-sm-none d-md-none d-xl-inline">Staff</span>
-                            </a>
-                        </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('staff*')? 'active' : '' }}" href="{{ route('staff.index') }}">
+                            <i class="bi bi-person-lines-fill"></i>
+                            <span class="ms-1 d-inline d-sm-none d-md-none d-xl-inline">Staff</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('library/books*')? 'active' : '' }}" href="{{ route('library.books.index') }}">
+                            <i class="bi bi-journals"></i>
+                            <span class="ms-1 d-inline d-sm-none d-md-none d-xl-inline">Library</span>
+                        </a>
 
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->is('library/books*') || request()->is('library/issues*') ? 'active' : '' }}"
-                               href="{{ route('library.books.index') }}">
-                                <i class="bi bi-journals"></i>
-                                <span class="ms-1 d-inline d-sm-none d-md-none d-xl-inline">Library</span>
-                            </a>
-                        </li>
+
+                    </li>
                     @endif
-
                 </ul>
             </div>
         </div>

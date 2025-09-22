@@ -4,71 +4,89 @@ namespace App\Http\Controllers\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
-use App\Models\Payment;
 use App\Models\User;
 use App\Models\SchoolClass;
 use App\Models\SchoolSession;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class InvoiceController extends Controller
 {
     public function index()
     {
-        $invoices = Invoice::with(['student','class','session'])->latest()->paginate(15);
+        $invoices = Invoice::with(['student','class'])->latest()->paginate(15);
         return view('finance.invoices.index', compact('invoices'));
     }
 
     public function create()
     {
-        $students = User::role('student')->get();
-        $classes  = SchoolClass::all();
-        $session  = SchoolSession::latest()->first();
-        return view('finance.invoices.create', compact('students','classes','session'));
+        $invoice   = new Invoice(); // مهم عشان الفورم المشترك
+        $students  = User::where('role', 'student')->orderBy('first_name')->get(['id','first_name','last_name']);
+        $classes   = SchoolClass::orderBy('class_name')->get(['id','class_name']);
+
+        return view('finance.invoices.create', compact('invoice','students','classes'));
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'student_id'=>'required|exists:users,id',
-            'class_id'=>'nullable|exists:school_classes,id',
-            'amount'=>'required|numeric|min:0',
-            'title'=>'required|string|max:255',
-            'due_date'=>'nullable|date',
-            'notes'=>'nullable|string',
+            'student_id' => ['required','exists:users,id'],
+            'class_id'   => ['nullable','exists:school_classes,id'],
+            'title'      => ['required','string','max:255'],
+            'amount'     => ['required','numeric','min:0.01'],
+            'status'     => ['required','in:unpaid,partial,paid,overdue'],
+            'due_date'   => ['nullable','date'],
+            'notes'      => ['nullable','string'],
         ]);
-        $data['session_id'] = SchoolSession::latest()->value('id');
-        $data['status'] = 'unpaid';
+
+        // لازم session_id (غير قابل للـ NULL في المايغريشن)
+        $sessionId = session('browse_session_id') ?? SchoolSession::latest()->value('id');
+        if (!$sessionId) {
+            return back()->withErrors('No school session found. Seed SchoolSession first.')->withInput();
+        }
+
+        $data['session_id'] = $sessionId;
+
         Invoice::create($data);
 
-        return redirect()->route('finance.invoices.index')->with('status','Invoice created');
+        return redirect()->route('finance.invoices.index')->with('status','Invoice created successfully.');
     }
 
     public function edit(Invoice $invoice)
     {
-        $students = User::role('student')->get();
-        $classes  = SchoolClass::all();
+        $students  = User::where('role', 'student')->orderBy('first_name')->get(['id','first_name','last_name']);
+        $classes   = SchoolClass::orderBy('class_name')->get(['id','class_name']);
+
         return view('finance.invoices.edit', compact('invoice','students','classes'));
     }
 
     public function update(Request $request, Invoice $invoice)
     {
         $data = $request->validate([
-            'student_id'=>'required|exists:users,id',
-            'class_id'=>'nullable|exists:school_classes,id',
-            'amount'=>'required|numeric|min:0',
-            'title'=>'required|string|max:255',
-            'status'=>'required|in:unpaid,partial,paid,overdue',
-            'due_date'=>'nullable|date',
-            'notes'=>'nullable|string',
+            'student_id' => ['required','exists:users,id'],
+            'class_id'   => ['nullable','exists:school_classes,id'],
+            'title'      => ['required','string','max:255'],
+            'amount'     => ['required','numeric','min:0.01'],
+            'status'     => ['required','in:unpaid,partial,paid,overdue'],
+            'due_date'   => ['nullable','date'],
+            'notes'      => ['nullable','string'],
         ]);
+
         $invoice->update($data);
-        return redirect()->route('finance.invoices.index')->with('status','Invoice updated');
+
+        return redirect()->route('finance.invoices.index')->with('status','Invoice updated successfully.');
     }
 
     public function destroy(Invoice $invoice)
     {
         $invoice->delete();
-        return back()->with('status','Invoice deleted');
+        return back()->with('status','Invoice deleted.');
+    }
+
+    // (اختياري)
+    public function show(Invoice $invoice)
+    {
+        $invoice->load(['student','class','payments']);
+        return view('finance.invoices.show', compact('invoice'));
     }
 }
+

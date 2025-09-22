@@ -8,100 +8,89 @@ use Spatie\Permission\PermissionRegistrar;
 
 class PermissionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        // Reset cached roles and permissions
+        // تفريغ الكاش
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // create permissions
+        // 👥 المستخدمين
         Permission::firstOrCreate(['name' => 'create users']);
         Permission::firstOrCreate(['name' => 'view users']);
         Permission::firstOrCreate(['name' => 'edit users']);
         Permission::firstOrCreate(['name' => 'delete users']);
+        Permission::firstOrCreate(['name' => 'view students']);
 
-        Permission::firstOrCreate(['name' => 'promote students']);
-
+        // 📢 الإعلانات
         Permission::firstOrCreate(['name' => 'create notices']);
         Permission::firstOrCreate(['name' => 'view notices']);
         Permission::firstOrCreate(['name' => 'edit notices']);
         Permission::firstOrCreate(['name' => 'delete notices']);
 
+        // 📅 الفعاليات
         Permission::firstOrCreate(['name' => 'create events']);
         Permission::firstOrCreate(['name' => 'view events']);
         Permission::firstOrCreate(['name' => 'edit events']);
         Permission::firstOrCreate(['name' => 'delete events']);
 
-        Permission::firstOrCreate(['name' => 'create syllabi']);
-        Permission::firstOrCreate(['name' => 'view syllabi']);
-        Permission::firstOrCreate(['name' => 'edit syllabi']);
-        Permission::firstOrCreate(['name' => 'delete syllabi']);
-
-        Permission::firstOrCreate(['name' => 'create routines']);
-        Permission::firstOrCreate(['name' => 'view routines']);
-        Permission::firstOrCreate(['name' => 'edit routines']);
-        Permission::firstOrCreate(['name' => 'delete routines']);
-
-        Permission::firstOrCreate(['name' => 'create exams']);
-        Permission::firstOrCreate(['name' => 'view exams']);
-        Permission::firstOrCreate(['name' => 'delete exams']);
-        Permission::firstOrCreate(['name' => 'create exams rule']);
-        Permission::firstOrCreate(['name' => 'view exams rule']);
-        Permission::firstOrCreate(['name' => 'edit exams rule']);
-        Permission::firstOrCreate(['name' => 'delete exams rule']);
-        Permission::firstOrCreate(['name' => 'view exams history']);
-
-        Permission::firstOrCreate(['name' => 'create grading systems']);
-        Permission::firstOrCreate(['name' => 'view grading systems']);
-        Permission::firstOrCreate(['name' => 'edit grading systems']);
-        Permission::firstOrCreate(['name' => 'delete grading systems']);
-        Permission::firstOrCreate(['name' => 'create grading systems rule']);
-        Permission::firstOrCreate(['name' => 'view grading systems rule']);
-        Permission::firstOrCreate(['name' => 'edit grading systems rule']);
-        Permission::firstOrCreate(['name' => 'delete grading systems rule']);
-
-        Permission::firstOrCreate(['name' => 'take attendances']);
-        Permission::firstOrCreate(['name' => 'view attendances']);
-        Permission::firstOrCreate(['name' => 'update attendances type']);
-
-        Permission::firstOrCreate(['name' => 'submit assignments']);
-        Permission::firstOrCreate(['name' => 'create assignments']);
-        Permission::firstOrCreate(['name' => 'view assignments']);
-
-        Permission::firstOrCreate(['name' => 'save marks']);
-        Permission::firstOrCreate(['name' => 'view marks']);
-
-        Permission::firstOrCreate(['name' => 'create school sessions']);
-
-        Permission::firstOrCreate(['name' => 'create semesters']);
-        Permission::firstOrCreate(['name' => 'view semesters']);
-        Permission::firstOrCreate(['name' => 'edit semesters']);
-        Permission::firstOrCreate(['name' => 'assign teachers']);
+        // 📚 المواد / الصفوف / الشعب
         Permission::firstOrCreate(['name' => 'create courses']);
         Permission::firstOrCreate(['name' => 'view courses']);
         Permission::firstOrCreate(['name' => 'edit courses']);
 
-        Permission::firstOrCreate(['name' => 'view academic settings']);
-        Permission::firstOrCreate(['name' => 'update marks submission window']);
-        Permission::firstOrCreate(['name' => 'update browse by session']);
-
         Permission::firstOrCreate(['name' => 'create classes']);
         Permission::firstOrCreate(['name' => 'view classes']);
         Permission::firstOrCreate(['name' => 'edit classes']);
-        // Permission::create(['name' => 'delete classes']);
 
         Permission::firstOrCreate(['name' => 'create sections']);
         Permission::firstOrCreate(['name' => 'view sections']);
         Permission::firstOrCreate(['name' => 'edit sections']);
-        // Permission::create(['name' => 'delete sections']);
 
+        // 🏫 الإعدادات الأكاديمية
+        Permission::firstOrCreate(['name' => 'view academic settings']);
+        Permission::firstOrCreate(['name' => 'update marks submission window']);
+        Permission::firstOrCreate(['name' => 'update browse by session']);
 
+        // 📝 الواجبات والامتحانات
+        Permission::firstOrCreate(['name' => 'create assignments']);
+        Permission::firstOrCreate(['name' => 'view assignments']);
+        Permission::firstOrCreate(['name' => 'submit assignments']);
+
+        Permission::firstOrCreate(['name' => 'create exams']);
+        Permission::firstOrCreate(['name' => 'view exams']);
+        Permission::firstOrCreate(['name' => 'delete exams']);
+
+        // ✅ العلامات
+        Permission::firstOrCreate(['name' => 'save marks']);
+        Permission::firstOrCreate(['name' => 'view marks']);
+
+        // 📖 المكتبة
+        Permission::firstOrCreate(['name' => 'create books']);
+        Permission::firstOrCreate(['name' => 'view books']);
+        Permission::firstOrCreate(['name' => 'edit books']);
+        Permission::firstOrCreate(['name' => 'delete books']);
+        Permission::firstOrCreate(['name' => 'issue books']);
+        Permission::firstOrCreate(['name' => 'return books']);
+        Permission::firstOrCreate(['name' => 'view issued books']);
+
+        // 💵 المالية
+        Permission::firstOrCreate(['name' => 'create invoices']);
+        Permission::firstOrCreate(['name' => 'view invoices']);
+        Permission::firstOrCreate(['name' => 'edit invoices']);
+        Permission::firstOrCreate(['name' => 'delete invoices']);
+        Permission::firstOrCreate(['name' => 'record payments']);
+        Permission::firstOrCreate(['name' => 'view payments']);
+
+        // 🧾 الحضور
+        Permission::firstOrCreate(['name' => 'take attendances']);
+        Permission::firstOrCreate(['name' => 'view attendances']);
+        Permission::firstOrCreate(['name' => 'update attendances type']);
+
+        $this->command->info('✅ PermissionSeeder: تم إنشاء كل الصلاحيات بنجاح.');
     }
 }
+
+
+
 //
 //
 //namespace Database\Seeders;
