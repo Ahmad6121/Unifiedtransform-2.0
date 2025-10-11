@@ -29,6 +29,7 @@ use App\Http\Controllers\Finance\PaymentController;
 use App\Http\Controllers\Library\BookController;
 use App\Http\Controllers\Library\BookIssueController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\Admin\UserRoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +49,12 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::middleware(['auth'])->group(function () {
+
+    Route::get('admin/users', [UserRoleController::class, 'index'])->name('admin.users.index');
+    Route::get('admin/users/{user}/edit', [UserRoleController::class, 'edit'])->name('admin.users.edit');
+    Route::put('admin/users/{user}', [UserRoleController::class, 'update'])->name('admin.users.update');
+    Route::get('admin/users/search', [UserRoleController::class, 'search'])->name('admin.users.search');
+
 
     Route::prefix('school')->name('school.')->group(function () {
         Route::post('session/create', [SchoolSessionController::class, 'store'])->name('session.store');
@@ -79,6 +86,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('student/create', [UserController::class, 'storeStudent'])->name('student.create');
         Route::post('student/update', [UserController::class, 'updateStudent'])->name('student.update');
     });
+
+
+
+
 
 
     Route::get('/home', [HomeController::class, 'index'])->name('home');

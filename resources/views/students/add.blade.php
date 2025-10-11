@@ -19,9 +19,16 @@
 
                     @include('session-messages')
 
-                    <p class="text-primary">
-                        <small><i class="bi bi-exclamation-diamond-fill me-2"></i> Remember to create related "Class" and "Section" before adding student</small>
-                    </p>
+                    {{-- 🔔 عرض تحذير فقط في حالة عدم وجود صفوف --}}
+                    @if(!isset($school_classes) || $school_classes->isEmpty())
+                        <div class="alert alert-warning d-flex align-items-center" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <div>
+                                لم يتم العثور على أي صفوف أو شعب. يرجى إنشاء الصفوف والشعب قبل إضافة الطالب.
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="mb-4">
                         <form class="row g-3" action="{{route('school.student.create')}}" method="POST">
                             @csrf
@@ -177,7 +184,7 @@
     function getSections(obj) {
         var class_id = obj.options[obj.selectedIndex].value;
 
-        var url = "{{route('get.sections.courses.by.classId')}}?class_id=" + class_id 
+        var url = "{{route('get.sections.courses.by.classId')}}?class_id=" + class_id
 
         fetch(url)
         .then((resp) => resp.json())

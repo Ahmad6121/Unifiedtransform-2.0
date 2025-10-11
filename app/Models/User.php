@@ -81,4 +81,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Mark::class, 'student_id', 'id');
     }
+    public function teacherCourses()
+    {
+        // يفترض أن لديك جدول AssignedTeacher يربط المعلمين بالكورسات/الصفوف
+        return $this->hasMany(\App\Models\AssignedTeacher::class, 'teacher_id');
+    }
+
 }

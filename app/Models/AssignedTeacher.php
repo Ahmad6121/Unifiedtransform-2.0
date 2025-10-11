@@ -55,4 +55,9 @@ class AssignedTeacher extends Model
     public function course() {
         return $this->belongsTo(Course::class, 'course_id');
     }
+
+    public function class()
+    {
+        return $this->belongsTo(SchoolClass::class, 'class_id');
+    }
 }

@@ -3,40 +3,50 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\SchoolSession;
-use App\Models\Semester;
-use App\Models\SchoolClass;
 use App\Models\Course;
+use App\Models\SchoolClass;
+use App\Models\Semester;
+use App\Models\SchoolSession;
 
 class CourseSeeder extends Seeder
 {
     public function run(): void
     {
-        $session = SchoolSession::orderByDesc('id')->first();
-        if (!$session) return;
+        $semester = Semester::latest()->first();
+        $session  = SchoolSession::latest()->first();
 
-        // سنربط المواد بكل فصل
-        $semesters = Semester::where('session_id', $session->id)->get();
-        if ($semesters->isEmpty()) return;
+        if (!$semester) {
+            $this->command->warn("⚠️ لا يوجد سمستر في قاعدة البيانات. شغّل SemesterSeeder أولاً.");
+            return;
+        }
 
-        $coreCourses = ['Mathematics', 'Science', 'English', 'Arabic', 'History'];
+        if (!$session) {
+            $this->command->warn("⚠️ لا يوجد Session في قاعدة البيانات. شغّل SchoolSessionSeeder أولاً.");
+            return;
+        }
 
-        foreach (SchoolClass::where('session_id', $session->id)->get() as $class) {
-            foreach ($semesters as $semester) {
-                foreach ($coreCourses as $cname) {
-                    Course::firstOrCreate(
-                        [
-                            'course_name' => $cname,
-                            'class_id'    => $class->id,
-                            'semester_id' => $semester->id,
-                            'session_id'  => $session->id,
-                        ],
-                        [
-                            'course_type' => 'Core',
-                        ]
-                    );
-                }
+        $courses = ['Mathematics', 'Science', 'English', 'Arabic', 'History'];
+
+        $classes = SchoolClass::all();
+
+        foreach ($classes as $class) {
+            foreach ($courses as $courseName) {
+                Course::firstOrCreate(
+                    [
+                        'course_name' => $courseName,
+                        'class_id'    => $class->id,
+                        'semester_id' => $semester->id,
+                        'session_id'  => $session->id, // ✅ إضافة session_id
+                    ],
+                    [
+                        'course_type' => 'Core',
+                        'created_at'  => now(),
+                        'updated_at'  => now(),
+                    ]
+                );
             }
         }
+
+        $this->command->info('✅ تم إضافة المواد لكل الصفوف وربطها بالـ semester والـ session بنجاح.');
     }
 }

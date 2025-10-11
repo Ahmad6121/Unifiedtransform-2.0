@@ -41,7 +41,21 @@ class Routine extends Model
     /**
      * Get the course.
      */
-    public function course() {
-        return $this->belongsTo(Course::class, 'course_id');
+//    public function course() {
+//        return $this->belongsTo(Course::class, 'course_id');
+//    }
+    public function course()
+    {
+        return $this->belongsTo(\App\Models\Course::class, 'course_id');
     }
+
+    public function teacher()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'teacher_id');
+    }
+    // app/Models/Routine.php
+
+    public function class()   { return $this->belongsTo(\App\Models\SchoolClass::class, 'class_id'); }
+
+
 }

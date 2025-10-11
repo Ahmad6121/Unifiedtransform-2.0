@@ -22,7 +22,7 @@ class RoutineController extends Controller
         $this->schoolSessionRepository = $schoolSessionRepository;
         $this->schoolClassRepository = $schoolClassRepository;
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -75,21 +75,49 @@ class RoutineController extends Controller
      * @param  \Illuminate\Http\Request  $routine
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request)
+
+    public function show(\Illuminate\Http\Request $request)
     {
-        $class_id = $request->query('class_id', 0);
-        $section_id = $request->query('section_id', 0);
-        $current_school_session_id = $this->getSchoolCurrentSession();
-        $routineRepository = new RoutineRepository();
-        $routines = $routineRepository->getAll($class_id, $section_id, $current_school_session_id);
-        $routines = $routines->sortBy('weekday')->groupBy('weekday');
+        $classId   = $request->input('class_id');
+        $sectionId = $request->input('section_id');
 
-        $data = [
-            'routines' => $routines
-        ];
+        $sessionId = session('browse_session_id') ??
+            \App\Models\SchoolSession::latest()->value('id');
 
-        return view('routines.show', $data);
+        $routines = \App\Models\Routine::with([
+            'course:id,course_name',
+            'teacher:id,first_name,last_name',
+            'class:id,class_name',
+            'section:id,section_name',
+        ])
+            ->when($sessionId, function ($q) use ($sessionId) {
+                return $q->where('session_id', $sessionId);
+            })
+            ->when($classId, function ($q) use ($classId) {
+                return $q->where('class_id', $classId);
+            })
+            ->when($sectionId, function ($q) use ($sectionId) {
+                return $q->where('section_id', $sectionId);
+            })
+            ->orderByRaw("FIELD(day,'Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday')")
+            ->orderBy('start_time')
+            ->get();
+
+        $class   = $classId ? \App\Models\SchoolClass::find($classId) : null;
+        $section = $sectionId ? \App\Models\Section::find($sectionId) : null;
+
+        // 🆕 ضمان وجود اسم معلم حتى لو teacher_id null
+        $routines->transform(function ($routine) {
+            $routine->teacher_name = $routine->teacher
+                ? $routine->teacher->first_name . ' ' . $routine->teacher->last_name
+                : '-';
+            return $routine;
+        });
+
+        return view('routines.view', compact('routines','class','section'));
     }
+
+
 
     /**
      * Show the form for editing the specified resource.

@@ -33,7 +33,7 @@ class UserController extends Controller
         $this->schoolClassRepository = $schoolClassRepository;
         $this->schoolSectionRepository = $schoolSectionRepository;
     }
-    
+
     /**
      * Store a newly created resource in storage.
      *
@@ -51,21 +51,33 @@ class UserController extends Controller
         }
     }
 
-    public function getStudentList(Request $request) {
+    public function getStudentList(Request $request)
+    {
         $current_school_session_id = $this->getSchoolCurrentSession();
 
         $class_id = $request->query('class_id', 0);
         $section_id = $request->query('section_id', 0);
 
-        try{
-
+        try {
             $school_classes = $this->schoolClassRepository->getAllBySession($current_school_session_id);
+            $user = auth()->user();
 
-            $studentList = $this->userRepository->getAllStudents($current_school_session_id, $class_id, $section_id);
+            if ($user->hasRole('teacher')) {
+                // جلب الصفوف المرتبطة بالمعلم
+                $teacherClasses = $user->teacherCourses()->pluck('class_id')->toArray();
+
+                // جلب الطلاب لكن فقط من صفوف المعلم
+                $studentList = $this->userRepository
+                    ->getAllStudents($current_school_session_id, $class_id, $section_id)
+                    ->whereIn('class_id', $teacherClasses);
+            } else {
+                // للأدمن أو أي دور آخر
+                $studentList = $this->userRepository->getAllStudents($current_school_session_id, $class_id, $section_id);
+            }
 
             $data = [
-                'studentList'       => $studentList,
-                'school_classes'    => $school_classes,
+                'studentList'    => $studentList,
+                'school_classes' => $school_classes,
             ];
 
             return view('students.list', $data);
@@ -73,6 +85,7 @@ class UserController extends Controller
             return back()->withError($e->getMessage());
         }
     }
+
 
 
     public function showStudentProfile($id) {
@@ -99,18 +112,35 @@ class UserController extends Controller
     }
 
 
-    public function createStudent() {
-        $current_school_session_id = $this->getSchoolCurrentSession();
+    public function createStudent()
+    {
+        // 1️⃣ احصل على الـ session الحالية أو آخر واحدة موجودة
+        $current_school_session_id = $this->getSchoolCurrentSession() ??
+            \App\Models\SchoolSession::latest()->value('id');
 
-        $school_classes = $this->schoolClassRepository->getAllBySession($current_school_session_id);
+        // 2️⃣ اجلب الصفوف والشعب بناءً على session_id (أو الكل إذا لم نجد)
+        $school_classes = $current_school_session_id
+            ? $this->schoolClassRepository->getAllBySession($current_school_session_id)
+            : $this->schoolClassRepository->getAll();
+
+        $sections = $current_school_session_id
+            ? \App\Models\Section::where('session_id', $current_school_session_id)->get()
+            : \App\Models\Section::all();
+
+        // 3️⃣ لو ما في صفوف أو شعب، لا نمنع المستخدم — فقط نظهر رسالة تحذير
+        if ($school_classes->isEmpty() || $sections->isEmpty()) {
+            session()->flash('warning', '⚠️ لم يتم العثور على صفوف أو شعب مرتبطة بالـ Session الحالية. سيتم عرض كل الصفوف والشعب المتاحة.');
+        }
 
         $data = [
             'current_school_session_id' => $current_school_session_id,
             'school_classes'            => $school_classes,
+            'sections'                  => $sections, // 🆕 تمرير الشعب للـ Blade
         ];
 
         return view('students.add', $data);
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -183,4 +213,6 @@ class UserController extends Controller
 
         return view('teachers.list', $data);
     }
+
+
 }
