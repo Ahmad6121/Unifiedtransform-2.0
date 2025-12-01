@@ -298,6 +298,8 @@ class UserController extends Controller
     {
         $parentId = Auth::id();
 
+        //hygjygygikubk
+
         $children = StudentParentInfo::with(['student', 'student.promotion'])
             ->where('parent_user_id', $parentId)
             ->get();
